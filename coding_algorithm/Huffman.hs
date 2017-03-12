@@ -9,6 +9,7 @@ data ProbaArbre = Feuille Char Double
                 | Noeud Double ProbaArbre ProbaArbre deriving (Eq, Show)
 
 type Code = String
+type Codebook = Map Char Code
 
 value :: ProbaArbre -> Double
 value (Feuille _ x) = x
@@ -40,11 +41,11 @@ finalArbre :: Map Char Double -> [ProbaArbre]
 finalArbre = last . takeWhile (/=[]) . arbreList .
              arbresOfProbas . (List.sortOn snd) . Map.toList
 
-codage :: ProbaArbre -> Map Char Code
+codage :: ProbaArbre -> Codebook
 codage (Feuille c _) = Map.singleton c ""
 codage (Noeud _ a1 a2) =
   Map.map ('0':) (codage a1) `Map.union` Map.map ('1':) (codage a2)
 
-huffmanCoding :: Map Char Double -> Map Char Code
+huffmanCoding :: Map Char Double -> Codebook
 huffmanCoding = codage . head . finalArbre
 
