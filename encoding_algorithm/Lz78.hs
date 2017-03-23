@@ -87,11 +87,13 @@ decodebookUpdate (Decodebook n dictD) str =
 
 
 decodeSeg :: Decoding -> Int -> Maybe Decoding
-decodeSeg (decodebook, res, oldphrase) code =
+decodeSeg (dcbook, res, oldphrase) code =
   fmap (\p -> (decodebookNew p, res ++ p, p)) phrase
   where phrase | code < 256 = Just [chr code]
-               | otherwise = Map.lookup code $ dictD decodebook
-        decodebookNew p = decodebookUpdate decodebook (oldphrase ++ [p!!0])
+               | code < nextNumD dcbook = Map.lookup code $ dictD dcbook
+               | code == nextNumD dcbook = Just $ oldphrase ++ [oldphrase!!0]
+               | otherwise = Nothing
+        decodebookNew p = decodebookUpdate dcbook (oldphrase ++ [p!!0])
 
 lz78Decoding :: Code -> Maybe String
 lz78Decoding [] = Just ""
