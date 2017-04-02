@@ -9,9 +9,10 @@ import qualified Data.Map as Map
 import Data.Char
 import Data.Word
 import Data.Digits (unDigits)
-import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as B
 
 import Huffman
+import Lz78
 
 -- count the number of occurence of each letter in an ASCII file
 countTimes :: String -> Map Char Int
@@ -41,10 +42,21 @@ toByteString = B.pack . groupWord
 
 main = do
   args <- getArgs
-  fileContent <- readFile $ head args  
-  case coding fileContent of
+  case head args of
+    "encode" -> do
+      fileContent <- readFile $ args!!1
+      B.writeFile (args!!2) $ lz78Encoding fileContent
+    "decode" -> do
+      fileContent <- B.readFile $ args!!1
+      case lz78Decoding fileContent of
+        Nothing -> hPutStrLn stderr 
+          "something wrong while trying to decode the source"
+        Just content -> writeFile (args!!2) content
+        
+
+  {-case coding fileContent of
     Nothing -> hPutStrLn stderr
-      "something wrong while trying to coding the source"
-    Just code -> B.writeFile (args!!1) (toByteString code)
+      "something wrong while trying to code the source"
+    Just code -> B.writeFile (args!!1) (toByteString code)-}
 
 
